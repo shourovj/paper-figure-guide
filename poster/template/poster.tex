@@ -1,0 +1,260 @@
+%% Conference poster template (paper-figure-guide). Compile this file.
+%% Rules: GUIDELINE.md, section 14. Example content and ALL DATA ARE INVENTED: replace them.
+%%
+%% Fitting: every column is a fixed-height box (\colHval). If the log shows "Overfull \vbox",
+%% shrink a plot height below; do not raise \colHval.
+
+%% ---------------- size ----------------
+%% NeurIPS 2026 main conference: 140 x 90 cm landscape. Check your venue's poster page.
+\newcommand{\posterwidth}{140}        % cm
+\newcommand{\posterheight}{90}        % cm
+\newcommand{\posterscale}{1.24}       % beamerposter font scale: body 25.7-30.9 pt, small print 21.4 pt
+\newcommand{\colHval}{74.0cm}         % height of each body column
+\newcommand{\colAw}{0.275}            % column widths as fractions of the page width;
+\newcommand{\colBw}{0.375}            %  with the gutters they must sum to 0.93
+\newcommand{\colCw}{0.28}
+%% plot panel sizes (width, height)
+\newcommand{\rowW}{8.8cm}  \newcommand{\rowH}{10.5cm}    % block 3
+\newcommand{\gridW}{12.9cm}\newcommand{\gridH}{8.4cm}    % block 6
+\newcommand{\barW}{14.2cm} \newcommand{\barH}{10.0cm}    % block 8
+\newcommand{\ablW}{10.6cm} \newcommand{\ablH}{9.8cm}     % block 9
+%% header and block colour (hex). BF5700 burnt orange; 1C4FA1 mid-blue also tested.
+\newcommand{\accenthex}{BF5700}
+
+\input{posterstyle}
+\input{figures}
+
+%% ---------------- header ----------------
+\newcommand{\postertitleA}{A Short Hook:}
+\newcommand{\postertitleB}{The Second Line Names the Method and What It Achieves}
+\newcommand{\posterauthors}{First Author$^{1}$ \quad Second Author$^{2}$ \quad Third Author$^{1,2}$}
+\newcommand{\posterinstitute}{$^{1}$First University \quad $^{2}$Second Institute}
+%% Header corners are built here, not inside the frame: a tabular inside an \if...\fi branch
+%% in a beamer frame fails with "Incomplete \ifx", and so does \qrcode{\macro} (pass the URL).
+\newcommand{\headerleft}{%
+  \logofile{4.6cm}{14cm}{fig/logos/conference.png}{conference logo}\par\vspace{0.8cm}
+  {\sffamily\footnotesize\color{headgray}Supported by\par}\vspace{0.45cm}
+  \logofile{3.0cm}{6cm}{fig/logos/funder.png}{funder}\hspace{1.0cm}%
+  \logofile{3.0cm}{9cm}{fig/logos/compute.png}{compute}\par}
+\newcommand{\headerright}{%
+  \begin{tabular}{@{}c@{\hspace{1.2cm}}c@{}}
+    \qrcode[height=5.4cm]{https://example.com/project-page} &
+    \qrcode[height=5.4cm]{https://example.com/code} \\[0.25cm]
+    {\footnotesize\faGlobe\ Project page} & {\footnotesize\faGithub\ Code}
+  \end{tabular}}
+
+\begin{document}
+\begin{frame}[t]
+
+%% =================== HEADER ===================
+\vspace*{1.0cm}
+\begin{columns}[c]
+  \begin{column}{0.02\paperwidth}\end{column}
+  \begin{column}{0.17\paperwidth}
+    \raggedright\headerleft
+  \end{column}
+  \begin{column}{0.58\paperwidth}
+    \centering
+    {\sffamily\fontsize{84}{98}\selectfont\bfseries\color{accent}\postertitleA\par}
+    \vspace{0.25cm}
+    {\sffamily\fontsize{76}{90}\selectfont\bfseries\color{black}\postertitleB\par}
+    \vspace{0.9cm}
+    {\sffamily\Large\posterauthors\par}
+    \vspace{0.35cm}
+    {\sffamily\normalsize\color{headgray}\posterinstitute\par}
+  \end{column}
+  \begin{column}{0.21\paperwidth}
+    \raggedleft\sffamily
+    \headerright
+  \end{column}
+  \begin{column}{0.02\paperwidth}\end{column}
+\end{columns}
+
+\vspace{0.6cm}
+{\centering\color{accent}\rule{0.96\paperwidth}{6pt}\par}
+\vspace{0.2cm}
+
+%% =================== BODY ===================
+% Each column is a fixed-height box; \vfill spreads leftover space evenly between blocks.
+\newlength{\colH}\setlength{\colH}{\colHval}
+\begin{columns}[t]
+\begin{column}{0.02\paperwidth}\end{column}
+
+%% ---------- LEFT: the problem ----------
+\begin{column}{\colAw\paperwidth}
+\begin{minipage}[t][\colH][s]{\linewidth}\vspace{0pt}
+\largertext   % this column has spare height: body text one size up
+
+\pblock{1}{The Problem, as One Question?}{%
+  {\small One line on the setting. One line on what goes wrong today.\par}
+  \vspace{0.5cm}
+  {\centering\placeholder{0.97\linewidth}{16cm}{teaser figure\\[0.3cm]\footnotesize \textbackslash includegraphics[width=\textbackslash linewidth]\{fig/teaser\}}\par}
+  \vspace{0.4cm}
+  \take{\textbf{Ours:} one line with the result, ideally a number.}
+}
+\vfill
+
+\pblock{2}{Why Existing Methods Fail}{%
+  \centering
+  \begin{tikzpicture}[
+      card/.style={draw=black!35, line width=2.5pt, fill=white, rounded corners=14pt, minimum width=11.2cm,
+        minimum height=9.4cm, align=center, text width=10.4cm, font=\scriptsize},
+    ]
+    \node[card] (a) at (0,0) {{\color{ac}\fontsize{54}{54}\selectfont\faCube}\\[0.5cm]
+      \textbf{Baseline A}\\[0.25cm]
+      \yes\ What it does well\\
+      \no\ How it fails};
+    \node[card, right=0.7cm of a] (b) {{\color{bc}\fontsize{54}{54}\selectfont\faCubes}\\[0.5cm]
+      \textbf{Baseline B}\\[0.25cm]
+      \yes\ What it does well\\
+      \no\ How it fails};
+    \node[card, right=0.7cm of b, draw=oursc, line width=3pt] {{\color{oursc}\fontsize{54}{54}\selectfont\faStar}\\[0.5cm]
+      \textbf{Ours}\\[0.25cm]
+      \yes\ Keeps both strengths\\
+      \yes\ Fixes the failure};
+  \end{tikzpicture}\par\vspace{0.5cm}
+  \raggedright\small
+  \begin{itemize}\setlength{\itemsep}{6pt}
+    \item One bullet with the shared cause $\Rightarrow$ \textbf{the consequence}.
+    \item A second bullet, if it is needed.
+  \end{itemize}
+}
+\vfill
+
+\pblock{3}{Each Baseline Breaks Differently}{%
+  {\centering\CurvesRow{\rowW}{\rowH}\par}
+  \vspace{0.5cm}
+  \raggedright\small
+  % each line starts with its series' line sample, so these lines are also the legend
+  \keyline{s a}{\textbf{Baseline A:} collapses after step 140.}
+  \keyline{s b}{\textbf{Baseline B:} lasts longer, then collapses.}
+  \keyline{s c}{\textbf{Baseline C:} stable but slow.}
+}
+
+\end{minipage}
+\end{column}
+
+\begin{column}{0.015\paperwidth}\end{column}
+
+%% ---------- CENTRE: method + main result ----------
+\begin{column}{\colBw\paperwidth}
+\begin{minipage}[t][\colH][s]{\linewidth}\vspace{0pt}
+
+\pblock{4}{The Method in One Figure}{%
+  {\small One line saying what the method changes.\par}
+  \vspace{0.6cm}
+  \centering\placeholder{0.97\linewidth}{19cm}{method figure (GUIDELINE.md, section 9)\\[0.3cm]\footnotesize \textbackslash includegraphics[width=\textbackslash linewidth]\{fig/method\}}\par
+}
+\vfill
+
+\pblock{5}{Two Key Equations}{%
+  \noindent
+  \begin{minipage}[t]{0.49\linewidth}
+    \begin{tcolorbox}[colback=white, colframe=accent!70, boxrule=2pt, arc=10pt, equal height group=eqs]
+      {\color{accent}\sffamily\bfseries\faCalculator\ First idea}\par
+      \eqslot{$\begin{aligned}
+        r(x) &= \tfrac{1}{T}\textstyle\sum_{t} \log p_\theta(x_t\mid x_{<t})\\[0.15cm]
+        \hat r(x) &= \big(r(x)-\mu\big)\,/\,(\sigma+\delta)
+      \end{aligned}$}
+      \footnotesize One line on what this term does.
+    \end{tcolorbox}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.49\linewidth}
+    \begin{tcolorbox}[colback=white, colframe=accent!70, boxrule=2pt, arc=10pt, equal height group=eqs]
+      {\color{accent}\sffamily\bfseries\faCrosshairs\ Second idea}\par
+      \eqslot{$\mathcal{L}=\mathcal{L}_{\text{task}}+\lambda\,\mathcal{L}_{\text{reg}},\qquad \lambda=0.1$}
+      \footnotesize One line on what this term does.
+    \end{tcolorbox}
+  \end{minipage}
+}
+\vfill
+
+\pblock{6}{The Main Result Holds Across Datasets and Sizes}{%
+  {\centering\CurvesGrid{\gridW}{\gridH}\par}
+  \vspace{0.35cm}
+  \figlegend{%
+    \legline{s ours}{Ours}\hspace{1.1cm}%
+    \legline{s variant}{Ours without component 2}\hspace{1.1cm}%
+    \legline{s a}{Baseline A}\hspace{1.1cm}%
+    \legline{s oracle}{Oracle (supervised)}}
+  \vspace{0.4cm}
+  \raggedright
+  \take{\textbf{Baseline A} collapses; \textbf{ours} stays within \textbf{2--5 points} of the oracle.}
+}
+
+\end{minipage}
+\end{column}
+
+\begin{column}{0.015\paperwidth}\end{column}
+
+%% ---------- RIGHT: results ----------
+\begin{column}{\colCw\paperwidth}
+\begin{minipage}[t][\colH][s]{\linewidth}\vspace{0pt}
+
+\pblock{7}{Setup and Main Results}{%
+  {\centering
+    \chip{\faRobot}{Model-S, Model-L}\hspace{0.4cm}%
+    \chip{\faDatabase}{Datasets A, B, C}\par\vspace{0.3cm}
+    \chip{\faRedo}{300 steps, 3 seeds}\par}
+  \vspace{0.5cm}
+  {\centering\small
+  \setlength{\tabcolsep}{0.22cm}
+  \begin{tabularx}{\linewidth}{@{}l*{3}{>{\centering\arraybackslash}X}@{}}
+    \toprule
+    \textbf{Method} & \textbf{Dataset A} & \textbf{Dataset B} & \textbf{Dataset C} \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Model-S}} \\
+    \refcell{Oracle (supervised)} & \refcell{76.0} & \refcell{57.3} & \refcell{33.1} \\
+    Baseline A & 58.4 & 41.9 & 24.7 \\
+    Baseline B & 52.0 & 37.4 & 22.0 \\
+    \rowcolor{oursc!10} Ours & \textbf{71.2} & \textbf{52.6} & \textbf{30.4} \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Model-L}} \\
+    \refcell{Oracle (supervised)} & \refcell{84.1} & \refcell{66.0} & \refcell{41.2} \\
+    Baseline A & 70.2 & 55.0 & 33.5 \\
+    Baseline B & 64.9 & 49.6 & 30.1 \\
+    \rowcolor{oursc!10} Ours & \textbf{81.0} & \textbf{63.4} & \textbf{39.8} \\
+    \bottomrule
+  \end{tabularx}\par}
+  \vspace{0.2cm}
+  \smallprint{Accuracy (\%), mean of 3 seeds. \textbf{Bold}: best without supervision.}
+  \vspace{0.3cm}
+  \take{Model-S: \textbf{+12.8 points} over Baseline A on Dataset A.}
+}
+\vfill
+
+\pblock{8}{Gains Hold at Every Model Size}{%
+  {\centering\BarsPlot{\barW}{\barH}\par}
+  \vspace{0.3cm}
+  \figlegend{%
+    \legbar{b ours}{Ours}\hspace{1.0cm}%
+    \legbar{b a}{Baseline A}\hspace{1.0cm}%
+    \legbar{b b}{Baseline B}\hspace{1.0cm}%
+    \legbar{b oracle}{Oracle}}
+  \vspace{0.3cm}
+  \raggedright
+  \take{Ours closes most of the gap to the oracle at every size.}
+  \smallprint{Single number per bar; add whiskers when runs vary (GUIDELINE.md, section 7).}
+}
+\vfill
+
+\pblock{9}{Ablation: Every Component Matters}{%
+  {\centering\AblationPlot{\ablW}{\ablH}\par}
+  \vspace{0.3cm}
+  \figlegend{\legdot{d before=inkc}{peak}\hspace{1.0cm}\legdot{d after=inkc}{final step}}
+  \vspace{0.3cm}
+  \raggedright
+  \take{Peaks are similar; \textbf{only the full method keeps its accuracy}.}
+  \vspace{0.4cm}
+  \takeaway{one sentence the reader should leave with.}{what the method does not do.}
+}
+\vfill
+{\raggedleft\footnotesize Supported in part by Funder (grant number). Compute: Provider (project).\par}
+
+\end{minipage}
+\end{column}
+\begin{column}{0.02\paperwidth}\end{column}
+\end{columns}
+
+\end{frame}
+\end{document}

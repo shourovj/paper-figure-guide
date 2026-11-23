@@ -1,6 +1,6 @@
 # Figure guideline for NeurIPS, ICML, ICLR, and CVPR papers
 
-Version 1.2, 2026-11-14. The code that applies these rules is [paperplot.py](paperplot.py), and every rule is shown in [demos/](demos/) (made by [make_demos.py](make_demos.py), with invented data only).
+Version 1.3, 2026-11-21. The code that applies these rules is [paperplot.py](paperplot.py), and every rule is shown in [demos/](demos/) (made by [make_demos.py](make_demos.py), with invented data only). Posters follow Section 14 and the kit in [poster/](poster/).
 
 ```python
 import matplotlib.pyplot as plt
@@ -36,6 +36,7 @@ pp.save(fig, "figures/my_plot")                         # .pdf + .png, then auto
 | How the method works | Method figure with a worked example (Section 9) | 15 |
 | The whole method on one page | Multi-panel overview figure (Section 9) | 17 |
 | What the model actually says | Qualitative response cards (Section 10) | 16 |
+| The whole paper on one page | Conference poster (Section 14) | 18 |
 
 Avoid pie charts, 3D plots, radar charts for numeric comparison, and dual y-axes. Split two scales into two panels.
 
@@ -62,7 +63,7 @@ Never use `bbox_inches="tight"`: it changes the output width, so LaTeX rescales 
 ## 3. Text
 
 - Axis labels 8 pt, ticks and legend 7-7.5 pt, nothing below 6 pt.
-- Computer Modern serif by default, matching the math in the paper. Use `font="sans"` for slides and posters. Long model responses in qualitative cards are set in sans. Overview diagrams use `font="diagram"`: Arial labels with Computer Modern math, so symbols match the paper's equations.
+- Computer Modern serif by default, matching the math in the paper. Use `font="sans"` for slides and posters (Section 14). Long model responses in qualitative cards are set in sans. Overview diagrams use `font="diagram"`: Arial labels with Computer Modern math, so symbols match the paper's equations.
 - Lowercase axis labels with units: `accuracy (%)`. Capitalize only proper names and method names.
 - Regular weight in plots, with bold only for panel tags. Method figures use bold component labels, and qualitative cards use bold titles.
 - No figure titles; the caption does that job. Panel titles name the dataset or condition.
@@ -196,7 +197,68 @@ By hand:
 - [ ] `pdffonts paper.pdf` shows no Type 3 and everything embedded
 - [ ] Anonymous submission: no names, paths, or logos inside the figure
 
-## 14. Where the sources disagreed
+## 14. Posters
+
+The kit in [poster/](poster/) applies these rules. `poster/template/` is a beamerposter template ready for Overleaf, with the plot styles of this guide in pgfplots (`posterplots.tex`). `poster/svg2tikz.py` turns SVG logos into vector TikZ. Demo 18 is the template with invented content.
+
+### Layout
+
+- Use the standard academic layout: a header (title, authors, affiliations, logos, QR codes), then three columns of numbered blocks on white. Designed layouts (dark fields, decorative motifs, story strips) were tried and dropped in favor of this one.
+- Each column is a fixed-height box, and `\vfill` spaces its blocks. When a column overflows, shrink a plot height. Never let a column run long.
+- Read left to right: the problem and why current methods fail, then the method and main result, then the results, the ablation and a takeaway.
+- Set the page to the venue's size. The NeurIPS 2026 main conference is 140 × 90 cm landscape and its workshops are 61 × 85 cm portrait. Check the poster page each year.
+
+### Text
+
+- One claim per block: a one-line intro, the figure, a one-line takeaway, and at most two or three short bullets. Prefer numbers to sentences.
+- Block titles state the finding ("Remove any piece and training collapses"), not the topic ("Ablation").
+- At beamerposter scale 1.24: body 25.7-30.9 pt, title 76-84 pt, nothing below 21.4 pt (`\footnotesize`).
+- Body text and math in Times (`newtxtext`, `newtxmath`), as in the paper. Titles, headings and all plot text in Helvetica. Latin Modern is too thin at poster scale and looks washed out.
+- Text is ink. Only the accent elements carry color.
+
+### Color
+
+- One saturated accent for the block headers and the first title line. Tested: burnt orange `#BF5700` (white text at 4.6:1) and mid-blue `#1C4FA1` (7.8:1). Navy reads too dark and greyish blues look washed out.
+- The plots keep the roles of Section 4. Keep the accent away from the roles the plots use: orange headers with a blue `ours` work well.
+- White background. No pastel fills on large areas.
+
+### Plots
+
+- Every plot rule in this guide applies. Scale its sizes by the poster's label size over 8 pt. With 25.7 pt ticks and 30.9 pt labels, line widths, markers and gaps are about 3.2 times the paper values.
+- Plot text: ticks and legends 25.7 pt, axis labels and panel titles 30.9 pt, value labels 21.4 pt. If a plot looks crowded at these sizes, use fewer panels, not smaller text.
+- Draw plots natively in pgfplots (`posterplots.tex`), so they use the poster's fonts at exact sizes. From matplotlib, export at the printed panel size with the sizes above. `pp.use(base=...)` scales only the fonts, so set line widths by hand.
+- One legend per figure, below it, with ours first. Under a line plot, text lines that start with each series' line sample (`\keyline`) can be the legend and the explanation at once.
+- When category labels collide, split them into two levels: the size on the tick, the family underneath (`\famlabel`).
+- Reference bars (oracle, supervised) at 30%, so ours reads first. With four or more bars per group, print values on ours only.
+- An ablation whose claim is a before/after change is a dumbbell. If an ablated variant equals another method on the poster, it keeps that method's color.
+- Single runs get no bands. Say so in the limitations line.
+
+### Header and logos
+
+- Left: the conference logo, then "Supported by" with funder and compute logos. Right: QR codes for the project page and the code, each labelled.
+- Use vector logos where possible: `python3 poster/svg2tikz.py logo.svg fig/logos/x.tex xlogo`. Many sites serve a white logo for a dark header; recolor it for white.
+- Check each logo's usage policy before printing. DARPA, for one, requires a written trademark licence for any use of its logo. Keep such a logo behind a switch until permission is confirmed, and keep the funding acknowledgment as text in the footer either way.
+
+### Build and check
+
+- Build with `tectonic -X compile poster.tex` (XeLaTeX). On Overleaf, upload the folder and compile `poster.tex`. The template has been built with XeLaTeX only, so switch Overleaf's compiler to XeLaTeX if pdfLaTeX fails.
+- [ ] The log has no `Overfull \vbox` (a column ran long) and no `Overfull \hbox`
+- [ ] Every number traces to a paper table or a data file
+- [ ] Nothing is below 21.4 pt except inside imported paper figures
+- [ ] A proof printed at A3 reads from 1 m; the QR codes scan from 2 m on the full-size print
+- [ ] Logo licences are checked, and the funding acknowledgment is in the footer
+
+### LaTeX pitfalls
+
+- Beamer already defines `\note`, `\logo` and the color `fg`. Do not reuse those names.
+- A `tabular` inside an `\if...\fi` branch inside a frame fails with "Incomplete \ifx", and so does `\qrcode{\macro}`. Build such pieces in the preamble and pass literal URLs.
+- `\color` at the start of a tabularx `X` cell opens an empty line. Put `\leavevmode` first (`\refcell`).
+- `\rowcolor` with `\extracolsep` leaves white gaps between cells. Use tabularx.
+- Under XeLaTeX, `newtxtext` switches to TU encoding, where `helvet` has no fonts. Load TeX Gyre Heros through fontspec, as `posterstyle.tex` does.
+- In a groupplot, set `/pgf/bar width`, not `bar width`. Nodes inside an axis are clipped unless the axis has `clip=false`.
+- In testing, a style defined in a pgfplots option list did not reach `\node`. Give such nodes their options directly, as `\famlabel` does.
+
+## 15. Where the sources disagreed
 
 | Topic | Swarm-Visualization | arXiv:2609.12278 | figures4papers | Decision |
 |---|---|---|---|---|
@@ -211,7 +273,7 @@ By hand:
 | Statistics | Wilcoxon annotations | Shaded bands | Optional bands | Intervals always, exact paired p-values |
 | File output | 600 dpi `savefig` | Embedded rasters | PNG + PDF | Vector PDF + preview PNG |
 
-Taken from each: from Swarm, best-location legends, paired significance testing and run-level distributions; from arXiv:2609.12278, the overall look, shared legends, baseline bands on sweeps; from figures4papers, semantic color roles, hatches for print, tint-based ablations, consistent helper functions. The method-figure and qualitative-card styles and the light bar shades follow MARINE (arXiv:2402.08680). The multi-panel overview style follows an example diagram the author supplied: a shared-latent decoder distillation figure. Added from wider guidance: exact venue geometry and font rules, validated color, interval estimates, and automated checks.
+Taken from each: from Swarm, best-location legends, paired significance testing and run-level distributions; from arXiv:2609.12278, the overall look, shared legends, baseline bands on sweeps; from figures4papers, semantic color roles, hatches for print, tint-based ablations, consistent helper functions. The method-figure and qualitative-card styles and the light bar shades follow MARINE (arXiv:2402.08680). The multi-panel overview style follows an example diagram the author supplied: a shared-latent decoder distillation figure. Added from wider guidance: exact venue geometry and font rules, validated color, interval estimates, and automated checks. The poster rules (Section 14) follow a UT Austin poster the author supplied as the model layout, and feedback rounds on a NeurIPS 2026 poster.
 
 ## Sources
 
@@ -223,6 +285,7 @@ Taken from each: from Swarm, best-location legends, paired significance testing 
 - [Agarwal et al., Deep RL at the Edge of the Statistical Precipice](https://arxiv.org/pdf/2108.13264)
 - [Paul Tol's color schemes, via khroma](https://rdrr.io/cran/khroma/man/tol.html), and the Okabe-Ito palette
 - Machado, Oliveira, and Fernandes (2009), for the color-vision simulation matrix
+- [NeurIPS 2026 poster instructions](https://neurips.cc/Conferences/2026/PosterInstructions) (sizes), [beamerposter](https://ctan.org/pkg/beamerposter), and [DARPA's usage policy](https://www.darpa.mil/policy/usage-policy) (logos)
 - Author kits: [CVPR 2026 guidelines](https://cvpr.thecvf.com/Conferences/2026/AuthorGuidelines), `cvpr.sty`, the ICML 2025 example paper and style, the NeurIPS 2023 template, and the ICLR 2026 template
 
 Venues change their kits. The CVPR 2026 guidelines page has no figure-specific rules beyond using the template, so recheck the current kit before each deadline.

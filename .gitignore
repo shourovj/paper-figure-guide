@@ -1,3 +1,11 @@
 __pycache__/
 *.pyc
 .DS_Store
+# LaTeX builds of the poster template (the rendered demo lives in demos/)
+poster/template/*.pdf
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
