@@ -1,24 +1,27 @@
-%% posterstyle.tex: page, fonts, colours, blocks and helpers. Input from poster.tex.
+%% posterstyle.tex: page, fonts, colours, blocks and helpers. Input from poster.tex after
+%% venues.tex has set \posterwidth, \posterheight and \posterscale.
 %% The rules behind these choices are in GUIDELINE.md, section 14.
 
 \documentclass[final,xcolor=table]{beamer}
 \usepackage[size=custom,width=\posterwidth,height=\posterheight,scale=\posterscale]{beamerposter}
 
-%% Fonts: Times for text and maths (as in the paper), Helvetica for titles, headings and plots.
-%% Both have heavier strokes than Latin Modern, which looks faint at poster scale.
+%% Fonts: Helvetica for all text (high contrast and a large x-height at a distance), with
+%% Times-style maths as in the paper. Latin Modern looks thin and washed out at poster scale.
 \usepackage[T1]{fontenc}
-\usefonttheme{serif}
+\usefonttheme{professionalfonts}   % keep the newtx maths; beamer would otherwise reset it
 \usepackage{amsmath}
-\usepackage{newtxtext,newtxmath}
+\usepackage{newtxmath}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[scaled=0.95]{helvet}
-\else  % XeLaTeX / LuaLaTeX: newtxtext switches to TU encoding, where helvet has no fonts
+\else  % XeLaTeX / LuaLaTeX
   \usepackage{fontspec}
   \setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
     ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=0.95]
 \fi
+\renewcommand{\familydefault}{\sfdefault}
 \usepackage{graphicx,booktabs,tabularx,tikz,pgfplots,qrcode,fontawesome5}
+\usepackage[savepos]{zref}
 \usepackage[most]{tcolorbox}
 \usetikzlibrary{arrows.meta,positioning,calc}
 \usepgfplotslibrary{groupplots}
@@ -32,37 +35,62 @@
 \usebeamercolor[fg]{normal text}
 
 %% ---------------- colours ----------------
-%% One saturated accent for block headers, the first title line and small accents.
-%% White header text needs at least 4.5:1 contrast on it. Keep it distinct from the plot roles.
-%% Tested: BF5700 burnt orange (4.6:1), 1C4FA1 mid-blue (8.0:1). Avoid navy and greyish blues.
+%% One saturated accent for the first title line, block headings, number discs and rules.
+%% Keep it away from the plot roles: burnt orange headings with a blue "ours" work well.
 \providecommand{\accenthex}{BF5700}
 \definecolor{accent}{HTML}{\accenthex}
-\definecolor{headgray}{RGB}{51,63,72}     % affiliations, small header labels
+\definecolor{panel}{HTML}{EFEFEF}       % flat grey panels: cards, equation boxes, chips
+\definecolor{rulegray}{HTML}{ABABAB}    % header rule
+\definecolor{headgray}{RGB}{51,63,72}   % affiliations, small header labels
 \definecolor{goodgreen}{RGB}{27,138,90}
 \definecolor{badred}{RGB}{200,50,40}
 
-\input{posterplots}
+\input{posterplots}   % colour roles, plot styles, \pu and the scaled line widths
+
+%% Blue (the "ours" colour) is reserved for our method and our key results; titles never use it.
+%% Text uses a slightly darker shade than the plot lines, so small bold text stays readable.
+\colorlet{oursT}{oursc!82!black}
 
 %% ---------------- blocks ----------------
-% \pblock[tcolorbox options]{number}{title}{body}
-\newtcolorbox{pblockenv}[3][]{
-  enhanced, sharp corners=south, arc=10pt,
-  colback=white, colframe=accent, boxrule=2.5pt, toprule=0pt,
-  colbacktitle=accent, coltitle=white,
-  fonttitle=\large\sffamily\bfseries,
-  title={\tikz[baseline=(n.base)]\node[circle,fill=white,text=accent,inner sep=4pt,minimum size=1.35cm,font=\normalsize\sffamily\bfseries](n){#2};\hspace{0.5em}#3},
-  toptitle=0.35cm, bottomtitle=0.35cm, lefttitle=0.8cm,
-  left=0.9cm, right=0.9cm, top=0.5cm, bottom=0.45cm,
-  #1}
-\newcommand{\pblock}[4][]{\begin{pblockenv}[#1]{#2}{#3}#4\end{pblockenv}}
+%% \pblock{title}{body}: a white rounded box with a bold black outline. Inside: a number disc and
+%% a bold heading in the accent colour, centred, over an accent rule. Blocks are numbered in
+%% the order they are typeset, so a layout that drops a block renumbers the rest.
+%% Headings are \Large and must fit on one line beside the disc: state the finding briefly.
+\newcounter{pblocknum}
+\newlength{\headW}
+\pkdim{\blockrule}{5pt}
+\pkdim{\headrule}{4pt}
+\newcommand{\pblock}[2]{%
+  \stepcounter{pblocknum}%
+  \begin{tcolorbox}[colback=white, colframe=black, boxrule=\blockrule, arc=0.6\pu, boxsep=0pt,
+      left=0.5\pu, right=0.5\pu, top=0.35\pu, bottom=0.4\pu, before skip=0pt, after skip=0pt]
+  \settowidth{\headW}{\sffamily\bfseries\Large #1}%
+  \ifdim\dimexpr\headW+2.5\pu\relax>\linewidth
+    \PackageWarningNoLine{posterstyle}{The heading of block \arabic{pblocknum} wraps to a second line:
+      shorten '#1'}%
+  \fi
+  {\centering\tikz[baseline=(n.base)]\node[circle, fill=accent, text=white, inner sep=0pt,
+      minimum size=1.85\pu, font=\large\sffamily\bfseries](n){\arabic{pblocknum}};\hspace{0.45em}%
+   {\sffamily\bfseries\Large\color{accent}#1}\par}
+  \vspace{0.2\pu}{\color{accent}\rule{\linewidth}{\headrule}}\par\vspace{0.45\pu}
+  {#2\par}
+  \end{tcolorbox}}
+%% space between stacked blocks: at least 0.8 cm (at scale 1.36), plus an even share of the
+%% column's spare height
+\newcommand{\blockgap}{\par\vspace{0.8\pu plus 1fill}}
 
 %% ---------------- helpers ----------------
 % one-line takeaway under a figure
 \newcommand{\take}[1]{{\small #1\par}}
-% small print (never smaller than \footnotesize = 21.4 pt)
+% small print (never smaller than \footnotesize)
 \newcommand{\smallprint}[1]{{\footnotesize #1\par}}
+% our method or one of our key results, in the "ours" colour
+\newcommand{\ours}[1]{{\color{oursT}\bfseries #1}}
+% another highlighted keyword in a given colour, e.g. a baseline's failure: \hl{ac}{collapses}
+\newcommand{\hl}[2]{{\color{#1}\bfseries #2}}
 % setup chip: \chip{\faIcon}{text}
-\newcommand{\chip}[2]{\tcbox[on line, colback=accent!8, colframe=accent!8, arc=8pt, boxsep=0pt, left=10pt, right=10pt, top=6pt, bottom=6pt]{\footnotesize{\color{accent}#1}\ #2}}
+\newcommand{\chip}[2]{\tcbox[on line, colback=panel, colframe=panel, arc=0.25\pu, boxsep=0pt,
+  left=0.25\pu, right=0.25\pu, top=0.2\pu, bottom=0.2\pu]{\footnotesize{\color{accent}#1}\ #2}}
 % grey reference row in a results table; \leavevmode keeps the colour from opening an empty
 % line at the start of a tabularx X cell
 \newcommand{\refcell}[1]{\leavevmode{\color{black!72}#1}}
@@ -70,22 +98,34 @@
 \newcommand{\no}{{\color{badred}\faTimes}}
 \setbeamertemplate{itemize items}{\color{accent}\faCaretRight}
 % equation slot of fixed height, so text under side-by-side boxes lines up
-\newcommand{\eqslot}[1]{\par\parbox[c][6.8cm][c]{\linewidth}{\centering\small #1}\par}
-% takeaway box at the end of the last column
-\newcommand{\takeaway}[2]{%
-  \begin{tcolorbox}[colback=accent!7, colframe=accent!7, arc=8pt, left=10pt, right=10pt, top=8pt, bottom=8pt]
-    \raggedright\hyphenpenalty=10000\small\textbf{Takeaway:} #1\par\vspace{0.15cm}
-    \footnotesize\textbf{Limitations:} #2
+\providecommand{\eqslotH}{6.5\pu}
+\newcommand{\eqslot}[1]{\par\parbox[c][\eqslotH][c]{\linewidth}{\centering\small #1}\par}
+% takeaway at the end of the last block: one sentence, on a light panel in the "ours" hue.
+% Limitations are said at the poster, not printed on it.
+\newcommand{\takeaway}[1]{%
+  \begin{tcolorbox}[colback=oursc!9, colframe=oursc!9, arc=0.45\pu, left=0.5\pu, right=0.5\pu,
+      top=0.4\pu, bottom=0.4\pu, before skip=0pt, after skip=0pt]
+    \raggedright\hyphenpenalty=10000\small\ours{Takeaway:} #1\par
   \end{tcolorbox}}
 % A column with spare height can step every body size up by one. Call at the start of the
-% column's minipage. Plot text is unaffected (its sizes are captured in posterplots.tex).
+% column. Plot text is unaffected (its sizes are captured in posterplots.tex).
 \newcommand{\largertext}{\let\origsmall\small \let\orignormalsize\normalsize
   \let\scriptsize\footnotesize \let\footnotesize\origsmall \let\small\orignormalsize}
 
 % grey dashed box standing in for a figure or logo that is not there yet
 \newcommand{\placeholder}[3]{% width, height, label
-  \tikz\node[draw=black!35, dashed, line width=2pt, rounded corners=8pt, minimum width=#1, minimum height=#2,
-    align=center, font=\sffamily\small, text=black!50]{#3};}
+  \tikz\node[draw=black!35, dashed, line width=0.07\pu, rounded corners=0.28\pu, minimum width=#1,
+    minimum height=#2, align=center, font=\sffamily\small, text=black!50]{#3};}
 % logo: the file if it exists, otherwise a placeholder of about the right size
 % \logofile{height}{width of placeholder}{path with extension}{label}
-\newcommand{\logofile}[4]{\IfFileExists{#3}{\includegraphics[height=#1]{#3}}{\placeholder{#2}{#1}{#4}}}
+% A logo never gets wider than the space it sits in.
+\newcommand{\logofile}[4]{\IfFileExists{#3}{\includegraphics[height=#1, width=\linewidth, keepaspectratio]{#3}}%
+  {\setlength{\cardW}{\minsize{#2}{\linewidth-0.15\pu}}\placeholder{\cardW}{#1}{#4}}}  % room for the dashed outline
+
+% icon size for cards: 54 pt at scale 1.36
+\pgfmathsetmacro{\iconsize}{39.7*\posterscale}
+% \minsize{a}{b}: the smaller of two length expressions. Layouts use it so a figure is as tall
+% as its width suggests, but never taller than its share of the column height.
+\newcommand{\minsize}[2]{\ifdim\dimexpr#1\relax<\dimexpr#2\relax\dimexpr#1\relax\else\dimexpr#2\relax\fi}
+% scratch lengths for sizes computed from the column width
+\newlength{\cardW}\newlength{\cardT}\newlength{\figH}

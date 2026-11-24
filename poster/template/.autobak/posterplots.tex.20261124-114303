@@ -1,0 +1,101 @@
+%% posterplots.tex: the house figure style (GUIDELINE.md) for pgfplots at poster scale.
+%% Input after pgfplots is loaded (posterstyle.tex does this). Reusable as is.
+%%
+%% Scale: the guide's sizes assume 8 pt axis labels. Line widths, markers and gaps below are
+%% the guide's values times about 3.2; text uses the poster sizes set in \figtick etc.
+%%   - sans text (the guide's setting for posters), lowercase axis labels with units
+%%   - thin full frame, no tick marks, light grid behind the data
+%%   - fixed colour roles, each with a second encoding (marker, dash or hatch)
+%%   - bars in light shades mixed with white (46%, ours 66%, oracle 30%), baselines hatched
+%%   - one legend, ours first; text in ink, never in a series colour
+
+\usetikzlibrary{patterns.meta}
+
+%% ---------------- colour roles (GUIDELINE.md, section 4) ----------------
+\definecolor{oursc}{HTML}{2E7BD6}     % ours: always
+\definecolor{ac}{HTML}{C9302C}        % a: strongest baseline
+\definecolor{bc}{HTML}{BF8700}        % b: baseline
+\definecolor{cc}{HTML}{A23BA6}        % c: baseline
+\definecolor{dc}{HTML}{159E86}        % d: baseline
+\definecolor{basec}{HTML}{8C8C8C}     % base: untreated model, background points, connectors
+\definecolor{oraclec}{HTML}{333333}   % oracle: upper bound or reference
+\colorlet{variantc}{oursc!60!white}   % a variant of ours shares its hue
+\definecolor{inkc}{HTML}{1A1A1A}
+\definecolor{mutedc}{HTML}{666666}
+\definecolor{gridc}{HTML}{E4E4E4}
+
+%% Figure text sizes, captured here so every plot uses the same sizes even inside a column
+%% that enlarges its body text with \largertext. At scale 1.24: 25.7 pt, 30.9 pt, 21.4 pt.
+\let\figtick\small          % ticks, legends
+\let\figlabel\normalsize    % axis labels, panel titles
+\let\figvalue\footnotesize  % value labels
+
+%% ---------------- series styles (TikZ, so they also work in legends) ----------------
+\tikzset{
+  s ours/.style={oursc, line width=5.2pt, mark=*, mark size=5.6pt, mark options={solid}},
+  s a/.style={ac, line width=3.8pt, mark=square*, mark size=4.6pt, mark options={solid}},
+  s b/.style={bc, line width=3.8pt, dash pattern=on 19pt off 5.7pt,
+    mark=triangle*, mark size=6.2pt, mark options={solid}},
+  s c/.style={cc, line width=3.8pt, dash pattern=on 11.5pt off 3.8pt on 3.8pt off 3.8pt,
+    mark=diamond*, mark size=6.2pt, mark options={solid}},
+  s d/.style={dc, line width=3.8pt, dash pattern=on 3.8pt off 3.8pt,
+    mark=triangle*, mark size=6.2pt, mark options={solid, rotate=180}},
+  s base/.style={basec, line width=3.2pt, mark=*, mark size=4.6pt, mark options={solid}},
+  s oracle/.style={oraclec, line width=3.2pt, dash pattern=on 12.8pt off 6.4pt, mark=none},
+  s variant/.style={variantc, line width=3.8pt, dash pattern=on 19pt off 5.7pt, mark=none},
+  % bars: light shade mixed with white; baselines keep a hatch in the full role colour
+  hatch/.style 2 args={postaction={pattern={Lines[angle=#2, distance=0.34cm, line width=1.6pt]}, pattern color=#1}},
+  b ours/.style={fill=oursc!66!white, draw=none},
+  b a/.style={fill=ac!46!white, draw=none, hatch={ac}{45}},
+  b b/.style={fill=bc!46!white, draw=none, hatch={bc}{-45}},
+  b c/.style={fill=cc!46!white, draw=none,
+    postaction={pattern={Dots[distance=0.34cm, radius=1.6pt]}, pattern color=cc}},
+  b d/.style={fill=dc!46!white, draw=none,
+    postaction={pattern={Hatch[distance=0.34cm, line width=1.6pt]}, pattern color=dc}},
+  b base/.style={fill=basec!46!white, draw=none},
+  b oracle/.style={fill=oraclec!30!white, draw=none},   % reference bars lighter, so ours reads first
+  b variant/.style={fill=oursc!40!white, draw=none},
+  % dumbbell dots: hollow = before (e.g. peak), filled = after (e.g. final)
+  d before/.style={draw=#1, fill=white, line width=3.4pt},
+  d after/.style={draw=#1, fill=#1, line width=3.4pt},
+}
+
+%% ---------------- legends and keys (set in the figure font) ----------------
+% \legline{style}{label}  line sample      \legbar{style}{label}  bar swatch
+% \legdot{style}{label}   dot              \figlegend{entries}    one centred row under a figure
+\newcommand{\legline}[2]{\mbox{\tikz[baseline=-0.6ex]\draw[#1, mark indices={2}] plot coordinates {(0,0) (1.1cm,0) (2.2cm,0)};\hspace{0.4em}#2}}
+\newcommand{\legbar}[2]{\mbox{\tikz[baseline=-0.1ex]\path[#1] (0,-0.3) rectangle (1.0,0.5);\hspace{0.4em}#2}}
+\newcommand{\legdot}[2]{\mbox{\tikz[baseline=-0.6ex]\path[#1] (0,0) circle (8pt);\hspace{0.4em}#2}}
+\newcommand{\figlegend}[1]{{\centering\sffamily\figtick\color{inkc}#1\par}}
+% A text line that starts with a series' line sample. Lines like this under a plot can be its
+% legend: \keyline{s a}{\textbf{Baseline A:} what happens to it.}
+\newcommand{\legkey}[1]{\tikz[baseline=-0.6ex]\draw[#1, mark indices={2}] plot coordinates {(0,0) (0.9cm,0) (1.8cm,0)};}
+\newcommand{\keyline}[2]{{\hangindent=2.5cm\hangafter=1\noindent\makebox[2.5cm][l]{\legkey{#1}}#2\par}\vspace{6pt}}
+
+%% ---------------- axis style ----------------
+\pgfplotsset{
+  posteraxis/.style={
+    scale only axis,
+    axis line style={draw=inkc, line width=1.9pt},
+    xmajorgrids, ymajorgrids, grid style={gridc, line width=1.6pt},
+    tick style={draw=none},
+    /pgf/number format/assume math mode=true,   % sans digits
+    tick label style={font=\sffamily\figtick, inkc},
+    label style={font=\sffamily\figlabel, inkc},
+    title style={font=\sffamily\figlabel, inkc, yshift=-0.2cm},
+    every node near coord/.append style={font=\sffamily\figvalue, inkc},
+  },
+  % bar charts: no grid along the categorical axis
+  posterbars/.style={posteraxis, xmajorgrids=false},
+}
+
+%% Second-level category label under a group of ticks, e.g. the model family under its sizes.
+%% Use inside an axis with clip=false: \famlabel{symbolic x coord}{text}
+\newcommand{\famlabel}[2]{\node[font=\sffamily\figtick, text=inkc, anchor=north, yshift=-1.3cm] at (axis cs:#1,0) {#2};}
+
+%% Dumbbell row inside an axis: \Dumbbell{colour}{row}{before}{after}
+\newcommand{\Dumbbell}[4]{%
+  \draw[basec, line width=5pt] (axis cs:#4,#2) -- (axis cs:#3,#2);
+  \path[d before=#1] (axis cs:#3,#2) circle (9pt);
+  \path[d after=#1]  (axis cs:#4,#2) circle (9pt);
+}

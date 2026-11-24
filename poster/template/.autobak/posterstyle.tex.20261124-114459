@@ -1,0 +1,91 @@
+%% posterstyle.tex: page, fonts, colours, blocks and helpers. Input from poster.tex.
+%% The rules behind these choices are in GUIDELINE.md, section 14.
+
+\documentclass[final,xcolor=table]{beamer}
+\usepackage[size=custom,width=\posterwidth,height=\posterheight,scale=\posterscale]{beamerposter}
+
+%% Fonts: Times for text and maths (as in the paper), Helvetica for titles, headings and plots.
+%% Both have heavier strokes than Latin Modern, which looks faint at poster scale.
+\usepackage[T1]{fontenc}
+\usefonttheme{serif}
+\usepackage{amsmath}
+\usepackage{newtxtext,newtxmath}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.95]{helvet}
+\else  % XeLaTeX / LuaLaTeX: newtxtext switches to TU encoding, where helvet has no fonts
+  \usepackage{fontspec}
+  \setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+    ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=0.95]
+\fi
+\usepackage{graphicx,booktabs,tabularx,tikz,pgfplots,qrcode,fontawesome5}
+\usepackage[most]{tcolorbox}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
+\setbeamersize{text margin left=0cm,text margin right=0cm}
+\setbeamercolor{normal text}{fg=black}
+\usebeamercolor[fg]{normal text}
+
+%% ---------------- colours ----------------
+%% One saturated accent for block headers, the first title line and small accents.
+%% White header text needs at least 4.5:1 contrast on it. Keep it distinct from the plot roles.
+%% Tested: BF5700 burnt orange (4.6:1), 1C4FA1 mid-blue (8.0:1). Avoid navy and greyish blues.
+\providecommand{\accenthex}{BF5700}
+\definecolor{accent}{HTML}{\accenthex}
+\definecolor{headgray}{RGB}{51,63,72}     % affiliations, small header labels
+\definecolor{goodgreen}{RGB}{27,138,90}
+\definecolor{badred}{RGB}{200,50,40}
+
+\input{posterplots}
+
+%% ---------------- blocks ----------------
+% \pblock[tcolorbox options]{number}{title}{body}
+\newtcolorbox{pblockenv}[3][]{
+  enhanced, sharp corners=south, arc=10pt,
+  colback=white, colframe=accent, boxrule=2.5pt, toprule=0pt,
+  colbacktitle=accent, coltitle=white,
+  fonttitle=\large\sffamily\bfseries,
+  title={\tikz[baseline=(n.base)]\node[circle,fill=white,text=accent,inner sep=4pt,minimum size=1.35cm,font=\normalsize\sffamily\bfseries](n){#2};\hspace{0.5em}#3},
+  toptitle=0.35cm, bottomtitle=0.35cm, lefttitle=0.8cm,
+  left=0.9cm, right=0.9cm, top=0.5cm, bottom=0.45cm,
+  #1}
+\newcommand{\pblock}[4][]{\begin{pblockenv}[#1]{#2}{#3}#4\end{pblockenv}}
+
+%% ---------------- helpers ----------------
+% one-line takeaway under a figure
+\newcommand{\take}[1]{{\small #1\par}}
+% small print (never smaller than \footnotesize = 21.4 pt)
+\newcommand{\smallprint}[1]{{\footnotesize #1\par}}
+% setup chip: \chip{\faIcon}{text}
+\newcommand{\chip}[2]{\tcbox[on line, colback=accent!8, colframe=accent!8, arc=8pt, boxsep=0pt, left=10pt, right=10pt, top=6pt, bottom=6pt]{\footnotesize{\color{accent}#1}\ #2}}
+% grey reference row in a results table; \leavevmode keeps the colour from opening an empty
+% line at the start of a tabularx X cell
+\newcommand{\refcell}[1]{\leavevmode{\color{black!72}#1}}
+\newcommand{\yes}{{\color{goodgreen}\faCheck}}
+\newcommand{\no}{{\color{badred}\faTimes}}
+\setbeamertemplate{itemize items}{\color{accent}\faCaretRight}
+% equation slot of fixed height, so text under side-by-side boxes lines up
+\newcommand{\eqslot}[1]{\par\parbox[c][6.8cm][c]{\linewidth}{\centering\small #1}\par}
+% takeaway box at the end of the last column
+\newcommand{\takeaway}[2]{%
+  \begin{tcolorbox}[colback=accent!7, colframe=accent!7, arc=8pt, left=10pt, right=10pt, top=8pt, bottom=8pt]
+    \raggedright\hyphenpenalty=10000\small\textbf{Takeaway:} #1\par\vspace{0.15cm}
+    \footnotesize\textbf{Limitations:} #2
+  \end{tcolorbox}}
+% A column with spare height can step every body size up by one. Call at the start of the
+% column's minipage. Plot text is unaffected (its sizes are captured in posterplots.tex).
+\newcommand{\largertext}{\let\origsmall\small \let\orignormalsize\normalsize
+  \let\scriptsize\footnotesize \let\footnotesize\origsmall \let\small\orignormalsize}
+
+% grey dashed box standing in for a figure or logo that is not there yet
+\newcommand{\placeholder}[3]{% width, height, label
+  \tikz\node[draw=black!35, dashed, line width=2pt, rounded corners=8pt, minimum width=#1, minimum height=#2,
+    align=center, font=\sffamily\small, text=black!50]{#3};}
+% logo: the file if it exists, otherwise a placeholder of about the right size
+% \logofile{height}{width of placeholder}{path with extension}{label}
+\newcommand{\logofile}[4]{\IfFileExists{#3}{\includegraphics[height=#1]{#3}}{\placeholder{#2}{#1}{#4}}}

@@ -1,0 +1,56 @@
+%% venues.tex: page size, font scale and layout for each venue. Input from poster.tex after
+%% \venue is set and before posterstyle.tex. Sizes are from each venue's poster page as read on
+%% 2026-11-24 (GUIDELINE.md, section 14.1 lists the pages). Venues change sizes from year to
+%% year: check the current page before printing, and never print larger than its maximum.
+%%
+%% \definevenue{key}{width cm}{height cm}{scale}{layout}{compact: true/false}
+%%   scale   beamerposter font scale. Tuned so the template's nine example blocks fill about
+%%           85% of every column, as on the reference NeurIPS 2026 poster (scale 1.36, body
+%%           28-34 pt). Bigger posters get bigger type; compact posters trade blocks for type.
+%%   layout  columns3 (landscape, width/height 1.2-1.7), columns4 (landscape, about 2:1),
+%%           portrait2 (portrait)
+%%   compact true drops three blocks (2, 5 and 8 in the template) so a small poster keeps
+%%           readable type; the remaining blocks renumber themselves.
+\newif\ifcompact
+\newcommand{\definevenue}[6]{%
+  \expandafter\def\csname posterpreset@#1\endcsname{%
+    \def\posterwidth{#2}\def\posterheight{#3}\def\posterscale{#4}\def\posterlayout{#5}%
+    \csname compact#6\endcsname}}
+
+%% ---- machine learning ----
+\definevenue{neurips}{140}{90}{1.36}{columns3}{false}           % NeurIPS 2026: 140 x 90 cm landscape (max)
+\definevenue{neurips-workshop}{61}{85}{1.2}{portrait2}{true}   % NeurIPS 2026 workshops: 61 x 85 cm portrait
+\definevenue{iclr}{185}{90}{1.62}{columns4}{false}              % ICLR 2026: max 190 x 90 cm; print partner asks 185 x 90
+\definevenue{iclr-workshop}{61}{91}{1.3}{portrait2}{true}      % ICLR 2026 workshops: max 61 x 91 cm portrait
+\definevenue{icml}{152.4}{91.4}{1.36}{columns3}{false}          % ICML 2026 suggested 60 x 36 in
+\definevenue{icml-48}{121.9}{91.4}{1.36}{columns3}{false}       % ICML 2026 suggested 48 x 36 in
+\definevenue{icml-72}{182.9}{91.4}{1.6}{columns4}{false}       % ICML 2026 suggested 72 x 36 in
+\definevenue{icml-workshop}{61}{91}{1.3}{portrait2}{true}      % ICML 2026 workshops: max 24 x 36 in portrait
+\definevenue{uai}{84.1}{118.9}{1.12}{portrait2}{false}           % UAI 2026: A0 portrait
+\definevenue{kdd}{106.7}{91.4}{1.4}{columns3}{false}            % KDD 2026: 3.5 x 3 ft space per paper
+\definevenue{kdd-workshop}{91.4}{106.7}{1.45}{portrait2}{true}   % KDD 2026 workshops: 3 x 3.5 ft space
+
+%% ---- computer vision ----
+\definevenue{cvpr}{213.4}{106.7}{1.88}{columns4}{false}          % CVPR 2026: 84 x 42 in (2:1) landscape
+\definevenue{cvpr-workshop}{106.7}{53.3}{1.1}{columns3}{true}  % CVPR 2026 workshops: 42 x 21 in
+\definevenue{iccv}{213.4}{106.7}{1.88}{columns4}{false}          % ICCV 2025: 84 x 42 in landscape
+%% ECCV 2026 published no physical size on its site (only the upload rules); use the size in
+%% your acceptance e-mail with \venue{custom}.
+
+%% ---- AI, NLP and data mining: A0 portrait ----
+\definevenue{a0}{84.1}{118.9}{1.12}{portrait2}{false}             % A0 portrait, 84.1 x 118.9 cm
+\definevenue{aaai}{84.1}{118.9}{1.12}{portrait2}{false}           % AAAI-26: no larger than A0, portrait
+\definevenue{ijcai}{84.1}{118.9}{1.12}{portrait2}{false}          % IJCAI 2025: A0, portrait preferred
+\definevenue{acl}{84.1}{118.9}{1.12}{portrait2}{false}            % ACL 2025 and EACL 2026: A0 portrait
+\definevenue{emnlp}{84.1}{118.9}{1.12}{portrait2}{false}          % EMNLP: no size published; ACL-family A0
+
+%% ---- apply ----
+\ifcsname posterpreset@\venue\endcsname
+  \csname posterpreset@\venue\endcsname
+\else
+  \ifdefined\posterlayout\else
+    \errmessage{venues.tex: unknown venue '\venue'. Use one of the keys above, or set
+      \string\venue{custom} and define \string\posterwidth, \string\posterheight,
+      \string\posterscale\space and \string\posterlayout\space yourself}
+  \fi
+\fi

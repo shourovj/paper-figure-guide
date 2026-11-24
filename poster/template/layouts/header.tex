@@ -1,0 +1,42 @@
+%% layouts/header.tex: the header row and the height left for the body. Used by every layout.
+%% The layout sets \mL (outer margin) and \hdrLw, \hdrCw, \hdrRw (left corner, title, right
+%% corner), all as fractions of the page width summing to 1 with both margins.
+%%
+%% Body height: the columns start where \zsavepos{postertop@body} sits (saved on the previous
+%% run) and end \bottommargin above the page edge. The first run uses a guess; tectonic and
+%% latexmk rerun automatically, so the second run fits. With plain xelatex, compile twice.
+\newsavebox{\headerbox}
+\newlength{\colH}
+\newlength{\bottommargin}
+\setlength{\bottommargin}{1.8\pu}
+% title sizes scale with the poster: 90 pt and 78 pt at scale 1.36
+\pgfmathsetmacro{\titleAsize}{66.2*\posterscale}\pgfmathsetmacro{\titleAskip}{73.5*\posterscale}
+\pgfmathsetmacro{\titleBsize}{57.4*\posterscale}\pgfmathsetmacro{\titleBskip}{66.2*\posterscale}
+\newcommand{\PosterHeader}{%
+  \sbox{\headerbox}{%
+    \begin{minipage}[c]{\hdrLw\paperwidth}\raggedright\headerleft\end{minipage}%
+    \begin{minipage}[c]{\hdrCw\paperwidth}\centering
+      {\sffamily\fontsize{\titleAsize pt}{\titleAskip pt}\selectfont\bfseries\color{accent}\postertitleA\par}
+      \vspace{0.25\pu}
+      {\sffamily\fontsize{\titleBsize pt}{\titleBskip pt}\selectfont\bfseries\postertitleB\par}
+      \vspace{0.7\pu}
+      {\sffamily\bfseries\Large\posterauthors\par}
+      \vspace{0.35\pu}
+      {\sffamily\small\color{headgray}\posterinstitute\par}
+    \end{minipage}%
+    \begin{minipage}[c]{\hdrRw\paperwidth}\raggedleft\headerright\end{minipage}}%
+  \vspace*{0.8\pu}%
+  {\noindent\hspace*{\mL\paperwidth}\usebox{\headerbox}\par}%
+  \vspace{0.6\pu}%
+  {\noindent\hspace*{\mL\paperwidth}{\color{rulegray}%
+    \rule{\dimexpr\paperwidth-\mL\paperwidth-\mL\paperwidth\relax}{\headrule}}\par}%
+  \vspace{0.6\pu}%
+  \ifdim\zposy{postertop@body}sp>0pt
+    \setlength{\colH}{\dimexpr\zposy{postertop@body}sp-\bottommargin\relax}%
+  \else
+    \setlength{\colH}{0.7\paperheight}%
+  \fi
+}
+% \PosterColumn{width fraction}{content}: one fixed-height column; \blockgap spreads spare height
+\newcommand{\PosterColumn}[2]{%
+  \begin{minipage}[t][\colH][s]{#1\paperwidth}\vspace{0pt}#2\end{minipage}}

@@ -1,0 +1,39 @@
+%% layouts/columns3.tex: three columns, for landscape posters 1.2-1.7 times as wide as tall
+%% (NeurIPS 140 x 90 cm, ICML 48-60 x 36 in, KDD). Reading order: 1-3 | 4-6 | 7-9.
+%% A wider middle column holds the method figure and the main result.
+\def\mL{0.015}\def\gut{0.01}
+\providecommand{\colAw}{0.28}\providecommand{\colBw}{0.38}\providecommand{\colCw}{0.29}
+\def\hdrLw{0.17}\def\hdrCw{0.59}\def\hdrRw{0.21}
+\input{layouts/header}
+
+%% Figure sizes: a share of the block's inner width (\linewidth) minus room for labels, capped at
+%% a share of the column height (\colH), so wide posters do not get plots taller than the page.
+%% Each \provide... can be overridden by defining it in poster.tex before \input{layouts/...}.
+\providecommand{\teaserH}{\minsize{0.42\linewidth}{0.215\colH}}
+\providecommand{\methodH}{\minsize{0.40\linewidth}{0.280\colH}}
+\providecommand{\cardH}{9.2\pu}                                        % block 2 cards
+\providecommand{\rowW}{\dimexpr(\linewidth-9\pu)/3\relax}            % block 3: three panels
+\providecommand{\rowH}{\minsize{(\linewidth-9\pu)*33/100}{0.131\colH}}
+\providecommand{\gridW}{\dimexpr(\linewidth-12\pu)/3\relax}            % block 6: 2 x 3 panels
+\providecommand{\gridH}{\minsize{(\linewidth-12\pu)*19/100}{0.103\colH}}
+\providecommand{\barW}{\dimexpr(\linewidth-6.5\pu)/2\relax}            % block 8: two panels
+\providecommand{\barH}{\minsize{(\linewidth-6.5\pu)*33/100}{0.146\colH}}
+\providecommand{\ablW}{\dimexpr(\linewidth-19\pu)/2\relax}             % block 9: two panels + row labels
+\providecommand{\ablH}{\minsize{(\linewidth-19\pu)*44/100}{0.120\colH}}
+
+\ifcompact
+  \newcommand{\ColumnA}{\BlockProblem\blockgap\BlockFailure}
+  \newcommand{\ColumnB}{\BlockMethod\blockgap\BlockMain}
+  \newcommand{\ColumnC}{\BlockSetup\blockgap\BlockAblation}
+\else
+  \newcommand{\ColumnA}{\BlockProblem\blockgap\BlockWhy\blockgap\BlockFailure}
+  \newcommand{\ColumnB}{\BlockMethod\blockgap\BlockEquations\blockgap\BlockMain}
+  \newcommand{\ColumnC}{\BlockSetup\blockgap\BlockScale\blockgap\BlockAblation}
+\fi
+
+\newcommand{\PosterBody}{%
+  \PosterHeader
+  \noindent\zsavepos{postertop@body}\hspace*{\mL\paperwidth}%
+  \PosterColumn{\colAw}{\ColumnA}\hspace*{\gut\paperwidth}%
+  \PosterColumn{\colBw}{\ColumnB}\hspace*{\gut\paperwidth}%
+  \PosterColumn{\colCw}{\ColumnC\par\vspace{0.3\pu plus 1fill}\PosterFooter}\par}

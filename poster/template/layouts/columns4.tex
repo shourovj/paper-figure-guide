@@ -1,0 +1,42 @@
+%% layouts/columns4.tex: four equal columns, for wide landscape posters of about 2:1
+%% (CVPR and ICCV 84 x 42 in, ICLR 185 x 90 cm, ICML 72 x 36 in). CVPR's own advice is "a 3 or 4
+%% column layout". Reading order: 1-2 | 3-5 | 6-7 | 8-9 (compact: 1-2 | 3-4 | 5 | 6).
+\def\mL{0.012}\def\gut{0.008}
+\providecommand{\colAw}{0.238}\providecommand{\colBw}{0.238}
+\providecommand{\colCw}{0.238}\providecommand{\colDw}{0.238}
+\def\hdrLw{0.18}\def\hdrCw{0.58}\def\hdrRw{0.216}
+\input{layouts/header}
+
+%% Figure sizes: a share of the block's inner width (\linewidth) minus room for labels, capped at
+%% a share of the column height (\colH), so wide posters do not get plots taller than the page.
+\providecommand{\teaserH}{\minsize{0.5\linewidth}{0.3\colH}}
+\providecommand{\methodH}{\minsize{0.40\linewidth}{0.308\colH}}
+\providecommand{\cardH}{11\pu}
+\providecommand{\rowW}{\dimexpr(\linewidth-9\pu)/3\relax}
+\providecommand{\rowH}{\minsize{(\linewidth-9\pu)*33/100}{0.144\colH}}
+\providecommand{\gridW}{\dimexpr(\linewidth-12\pu)/3\relax}
+\providecommand{\gridH}{\minsize{(\linewidth-12\pu)*21/100}{0.113\colH}}
+\providecommand{\barW}{\dimexpr(\linewidth-6.5\pu)/2\relax}
+\providecommand{\barH}{\minsize{(\linewidth-6.5\pu)*33/100}{0.161\colH}}
+\providecommand{\ablW}{\dimexpr(\linewidth-19\pu)/2\relax}
+\providecommand{\ablH}{\minsize{(\linewidth-19\pu)*44/100}{0.132\colH}}
+
+\ifcompact
+  \newcommand{\ColumnA}{\BlockProblem\blockgap\BlockFailure}
+  \newcommand{\ColumnB}{\BlockMethod\blockgap\BlockMain}
+  \newcommand{\ColumnC}{\BlockSetup}
+  \newcommand{\ColumnD}{\BlockAblation}
+\else
+  \newcommand{\ColumnA}{\BlockProblem\blockgap\BlockWhy}
+  \newcommand{\ColumnB}{\BlockFailure\blockgap\BlockMethod\blockgap\BlockEquations}
+  \newcommand{\ColumnC}{\BlockMain\blockgap\BlockSetup}
+  \newcommand{\ColumnD}{\BlockScale\blockgap\BlockAblation}
+\fi
+
+\newcommand{\PosterBody}{%
+  \PosterHeader
+  \noindent\zsavepos{postertop@body}\hspace*{\mL\paperwidth}%
+  \PosterColumn{\colAw}{\ColumnA}\hspace*{\gut\paperwidth}%
+  \PosterColumn{\colBw}{\ColumnB}\hspace*{\gut\paperwidth}%
+  \PosterColumn{\colCw}{\ColumnC}\hspace*{\gut\paperwidth}%
+  \PosterColumn{\colDw}{\ColumnD\par\vspace{0.3\pu plus 1fill}\PosterFooter}\par}

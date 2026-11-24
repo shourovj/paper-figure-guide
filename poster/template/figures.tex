@@ -1,5 +1,7 @@
 %% figures.tex: example plots for the template. ALL DATA IS INVENTED; replace it with yours.
-%% Each plot is a macro taking the panel width and height, so poster.tex can resize it.
+%% Each plot is a macro taking the panel width and height (any length expression, e.g. a share
+%% of \linewidth), so a layout can resize it.
+%% Gaps and offsets use \pu (posterplots.tex), so they scale with the poster.
 %% Styles come from posterplots.tex.
 
 %% ---------------------------------------------------------------
@@ -187,10 +189,11 @@ step a b c
   \addplot[s a, mark repeat=2, mark phase=1] table[x=step, y=a] {#1};
 }
 \newcommand{\CurvesRow}[2]{%
+\setlength{\plotW}{#1}\setlength{\plotH}{#2}%
 \begin{tikzpicture}
 \begin{groupplot}[
-  group style={group size=3 by 1, horizontal sep=2.0cm, ylabels at=edge left},
-  posteraxis, width=#1, height=#2,
+  group style={group size=3 by 1, horizontal sep=2.0\pu, ylabels at=edge left},
+  posteraxis, width=\plotW, height=\plotH,
   xmin=10, xmax=310, xtick={100,200,300}, ymin=0,
   ylabel={accuracy (\%)},
 ]
@@ -211,13 +214,13 @@ step a b c
   \addplot[s ours, mark repeat=2, mark phase=1] table[x=step, y=ours]    {#1};
 }
 \newcommand{\CurvesGrid}[2]{%
+\setlength{\plotW}{#1}\setlength{\plotH}{#2}%
 \begin{tikzpicture}
 \begin{groupplot}[
-  group style={group size=3 by 2, horizontal sep=2.3cm, vertical sep=1.4cm,
+  group style={group size=3 by 2, horizontal sep=2.3\pu, vertical sep=1.4\pu,
                ylabels at=edge left, xticklabels at=edge bottom},
-  posteraxis, width=#1, height=#2,
+  posteraxis, width=\plotW, height=\plotH,
   xmin=10, xmax=310, xtick={100,200,300}, ymin=0,
-  ylabel={accuracy (\%)},
 ]
 \nextgroupplot[title={Dataset A}, ymax=90, ytick={0,20,40,60,80}]        \GridLines{\gridSA}
 \nextgroupplot[title={Dataset B}, ymax=70, ytick={0,20,40,60}]           \GridLines{\gridSB}
@@ -226,8 +229,12 @@ step a b c
 \nextgroupplot[ymax=70, ytick={0,20,40,60}, xlabel={training step}]      \GridLines{\gridLB}
 \nextgroupplot[ymax=45, ytick={0,10,20,30,40}]                           \GridLines{\gridLC}
 \end{groupplot}
-\node[rotate=90, anchor=south, font=\sffamily\figlabel, inkc] at ($(group c1r1.west)+(-3.0cm,0)$) {Model-S};
-\node[rotate=90, anchor=south, font=\sffamily\figlabel, inkc] at ($(group c1r2.west)+(-3.0cm,0)$) {Model-L};
+% row labels next to the ticks, one shared y label outside them: a rotated "accuracy (%)" per row
+% would be taller than a row on wide posters, where rows are short
+\node[rotate=90, anchor=south, font=\sffamily\figlabel, inkc] at ($(group c1r1.west)+(-2.6\pu,0)$) {Model-S};
+\node[rotate=90, anchor=south, font=\sffamily\figlabel, inkc] at ($(group c1r2.west)+(-2.6\pu,0)$) {Model-L};
+\node[rotate=90, anchor=south, font=\sffamily\figlabel, inkc]
+  at ($($(group c1r1.north west)!0.5!(group c1r2.south west)$)+(-4.3\pu,0)$) {accuracy (\%)};
 \end{tikzpicture}}
 
 %% ---------------------------------------------------------------
@@ -236,11 +243,12 @@ step a b c
 %% Two-level tick labels (size, then family) keep long category names from colliding.
 %% ---------------------------------------------------------------
 \newcommand{\BarsPlot}[2]{%
+\setlength{\plotW}{#1}\setlength{\plotH}{#2}%
 \begin{tikzpicture}
 \begin{groupplot}[
-  group style={group size=2 by 1, horizontal sep=1.6cm, ylabels at=edge left, yticklabels at=edge left},
-  posterbars, width=#1, height=#2,
-  ybar=0.14cm, /pgf/bar width=0.68cm,
+  group style={group size=2 by 1, horizontal sep=1.6\pu, ylabels at=edge left, yticklabels at=edge left},
+  posterbars, width=\plotW, height=\plotH,
+  ybar=0.14\pu, /pgf/bar width=0.68\pu,
   symbolic x coords={s,m,l,y}, xtick=data, xticklabels={S, M, L, S},
   enlarge x limits=0.16,
   ymin=0, ymax=100, ytick={0,20,40,60,80},
@@ -269,30 +277,33 @@ step a b c
 %% method shown on the poster, give it that method's colour instead.
 %% ---------------------------------------------------------------
 \newcommand{\AblationPlot}[2]{%
+\setlength{\plotW}{#1}\setlength{\plotH}{#2}%
 \begin{tikzpicture}
 \pgfplotsset{abl/.style={
-  posteraxis, width=#1, height=#2,
+  posteraxis, width=\plotW, height=\plotH,
   y dir=reverse, ymin=0, ymax=3, ytick={0,1,2,3}, enlarge y limits={abs=0.6},
   ymajorgrids=false, clip=false,
+  % in a narrow column the two x labels would collide; let each wrap to its panel's width
+  xlabel style={text width=\plotW, align=center},
 }}
 \begin{axis}[abl, name=left,
-  xmin=-4, xmax=84, xtick={0,20,40,60,80},   % dots at 0 sit inside the frame; ticks stay in range
+  xmin=-4, xmax=84, xtick={0,40,80},   % dots at 0 sit inside the frame; ticks stay in range
   yticklabels={{Full method (ours)}, {w/o component 1}, {w/o component 2}, {w/o component 3}},
-  xlabel={Dataset A accuracy (\%)},
+  xlabel={Dataset A (\%)},
 ]
 \Dumbbell{oursc}{0}{74.0}{71.2}
 \Dumbbell{oursc!70!white}{1}{73.1}{48.6}
 \Dumbbell{oursc!55!white}{2}{72.5}{30.2}
 \Dumbbell{oursc!40!white}{3}{70.8}{12.4}
-\node[anchor=east, font=\sffamily\figvalue, inkc, xshift=-0.55cm] at (axis cs:71.2,0) {71.2};
+\node[anchor=east, font=\sffamily\figvalue, inkc, xshift=-0.55\pu] at (axis cs:71.2,0) {71.2};
 \end{axis}
-\begin{axis}[abl, at={($(left.east)+(2.0cm,0)$)}, anchor=west,
-  yticklabels={}, xlabel={Dataset B accuracy (\%)}, xmin=-3, xmax=63, xtick={0,20,40,60},
+\begin{axis}[abl, at={($(left.east)+(2.0\pu,0)$)}, anchor=west,
+  yticklabels={}, xlabel={Dataset B (\%)}, xmin=-3, xmax=63, xtick={0,30,60},
 ]
 \Dumbbell{oursc}{0}{55.0}{52.6}
 \Dumbbell{oursc!70!white}{1}{54.2}{35.1}
 \Dumbbell{oursc!55!white}{2}{53.8}{20.4}
 \Dumbbell{oursc!40!white}{3}{52.9}{8.3}
-\node[anchor=east, font=\sffamily\figvalue, inkc, xshift=-0.55cm] at (axis cs:52.6,0) {52.6};
+\node[anchor=east, font=\sffamily\figvalue, inkc, xshift=-0.55\pu] at (axis cs:52.6,0) {52.6};
 \end{axis}
 \end{tikzpicture}}
